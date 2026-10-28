@@ -30,10 +30,9 @@ jobs:
           New-Item -ItemType Directory -Force distribution | Out-Null
           Copy-Item dist/electron/UsbR485Tool-x64-portable.exe distribution/
           Copy-Item Addresses.csv, operator.csv distribution/
-          Compress-Archive -Path distribution/* -DestinationPath dist/electron/UsbR485Tool-win-x64.zip
       - name: Upload portable package
         uses: actions/upload-artifact@v4
         with:
           name: UsbR485Tool-win-x64
-          path: dist/electron/UsbR485Tool-win-x64.zip
+          path: distribution/*
           if-no-files-found: error

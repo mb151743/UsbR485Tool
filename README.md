@@ -38,9 +38,9 @@ The artifact is written to `dist/electron/UsbR485Tool-x64-portable.exe`. Before 
 
 ## GitHub Actions builds
 
-The portable build runs automatically when changes are pushed to `main` (Markdown-only changes are ignored). You can also run **Actions → Build Windows portable app → Run workflow** manually. The downloadable `UsbR485Tool-win-x64` artifact is a zip containing the executable and both CSV files at the root.
+The portable build runs automatically when changes are pushed to `main` (Markdown-only changes are ignored). You can also run **Actions → Build Windows portable app → Run workflow** manually. The `UsbR485Tool-win-x64` Actions artifact contains the executable and both CSV files at its root; GitHub packages the artifact for download.
 
-The installable Windows x64 build remains manual: choose **Actions → Build Windows installer → Run workflow**. It does not autobuild on pushes.
+The installable Windows x64 build remains manual: choose **Actions → Build Windows installer → Run workflow**. It does not autobuild on pushes. Its Actions artifact contains the setup executable and both CSV files at its root.
 
 ## Startup timing log
 
