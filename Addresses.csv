@@ -1,0 +1,257 @@
+Address,Description,Test name,ref,lower limit,upper limit,end position,switch 1,switch 2,fwVersion
+2,Motorised slit,slit,ref,1000,30000,10000,ignore,ignore,1.14
+3,Motorised slit slave,ignore,ref,1000,30000,10000,ignore,ignore,1.14
+0,Legacy (was Podule Optic Wheel 1),ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+1,Legacy (was Podule Optic Wheel 2),ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+4,Legacy (was Podule Si focus(Futaba)),ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+5,"Legacy (was Podule Lamps, Laser power meter & thermometer)",ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+6,Interlock Board functions,interlock,ignore,ignore,ignore,ignore,ignore,ignore,5.01
+7,Interlock Board safety shutter (Futaba),ignore,ignore,ignore,ignore,ignore,ignore,ignore,5.01
+8,Motorised pre-slit lens,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+9,Motorised post-slit lens,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+10,Motorised camera lens,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+11,Line Focus wheel,motor,ref,0,400,200,ingore,ingore,0
+12,XYZ stage motor X,motor,ref,3400000,3900000,3600000,ingore,ingore,0.74
+13,XYZ stage motor Y,motor,ref,3400000,3900000,3600000,ingore,ingore,0.74
+14,XYZ stage motor Z,motor,ignore,3200000,4000000,3600000,ingore,ingore,0.74
+15,XYZ stage peripheral,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0.74
+16,Single channel GP futaba board,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+17,200DR (Sandwich scope) Motor 1,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+18,200DR (Sandwich scope) Motor 2,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+19,Mirror Steer channel 1  (Bottom left),motor,no ref,101,923,512,ignore,ignore,2.04
+20,Mirror Steer channel 2  (Top left),motor,no ref,101,923,512,ignore,ignore,2.04
+21,Mirror Steer channel 3  (Bottom right),motor,no ref,101,923,512,ignore,ignore,2.04
+22,Mirror Steer channel 4  (Top right),motor,no ref,101,923,512,ignore,ignore,2.04
+23,Mirror Steer channel 5  (Used during validation for Barometer reading),ignore,ignore,ignore,ignore,ignore,ignore,ignore,2.04
+24,Mirror Steer channel 6  (reserved),ignore,ignore,ignore,ignore,ignore,ignore,ignore,2.04
+25,Mirror Steer channel 7  (reserved),ignore,ignore,ignore,ignore,ignore,ignore,ignore,2.04
+26,Mirror Steer channel 8  (reserved),ignore,ignore,ignore,ignore,ignore,ignore,ignore,2.04
+27,GP Futaba channel 1  (Pin hole),futaba,no ref,5000,7500,ignore,ignore,ignore,1.06
+28,GP Futaba channel 2  (CFOP steer),futaba,no ref,5000,7500,ignore,ignore,ignore,1.06
+29,GP Futaba channel 3  (Exp beam filter A),futaba,no ref,5000,10000,ignore,ignore,ignore,1.06
+30,GP Futaba channel 3  (Exp beam filter B),futaba,no ref,5000,10000,ignore,ignore,ignore,1.06
+31,GP Futaba channel 5  (ND1),futaba,no ref,5000,9000,ignore,ignore,ignore,1.06
+32,GP Futaba channel 6  (ND2),futaba,no ref,6000,10000,ignore,ignore,ignore,1.06
+33,GP Futaba channel 7  (ND3),futaba,no ref,5000,10000,ignore,ignore,ignore,1.06
+34,GP Futaba channel 8  (ND4),futaba,no ref,5000,10000,ignore,ignore,ignore,1.06
+35,Podule channel 1  (Si Focus),futaba,no ref,6000,8000,ignore,ignore,ignore,2.15
+36,Podule channel 2  (spare),ignore,ignore,ignore,ignore,ignore,ignore,ignore,2.15
+37,Podule channel 3  (Iris aperture),futaba,no ref,6000,8000,ignore,ignore,ignore,2.15
+38,Podule channel 4  (spare),ignore,ignore,ignore,ignore,ignore,ignore,ignore,2.15
+39,Podule channel 5  (Iris field),futaba,no ref,6000,8000,ignore,ignore,ignore,2.15
+40,Podule channel 6  (spare),ignore,ignore,ignore,ignore,ignore,ignore,ignore,2.15
+41,Podule channel 7  (spare),ignore,ignore,ignore,ignore,ignore,ignore,ignore,2.15
+42,Podule channel 8  (spare),ignore,ignore,ignore,ignore,ignore,ignore,ignore,2.15
+43,Podule Upper Optic Wheel,motor,ref,2,3,4,ignore,ignore,2.15
+44,Podule Lower Optic Wheel,motor,ref,2,3,4,ignore,ignore,2.15
+45,Podule White Light Illumination/Calibration/Neon/power meter/thermometer,pod lamps,ignore,ignore,ignore,ignore,ignore,ignore,2.15
+46,GP Futaba channel 1  (Aux filter arm 1),futaba,no ref,6000,8000,ignore,ignore,ignore,1.06
+47,GP Futaba channel 2  (Aux filter arm 2),futaba,no ref,6000,8000,ignore,ignore,ignore,1.06
+48,GP Futaba channel 3  (Aux filter arm 3),futaba,no ref,6000,8000,ignore,ignore,ignore,1.06
+49,GP Futaba channel 4  (Aux filter arm 4),futaba,no ref,6000,8000,ignore,ignore,ignore,1.06
+50,GP Futaba channel 5  (Waveplate)/(2nd detector mirror in front room),futaba,no ref,6000,8000,ignore,ignore,ignore,1.06
+51,GP Futaba channel 6  (Beamblock 1),futaba,no ref,6000,8000,ignore,ignore,ignore,1.06
+52,GP Futaba channel 7  (Beamblock 2),futaba,no ref,6000,8000,ignore,ignore,ignore,1.06
+53,GP Futaba channel 8  (Beamblock 3),futaba,no ref,6000,8000,ignore,ignore,ignore,1.06
+54,SEM-SCA Stepper motor 1,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+55,SEM-SCA Stepper motor 2,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+56,SEM-SCA Stepper motor 3,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+57,SEM-SCA Lamps,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+58,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+59,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+60,Beam expander,motor,ref,0,1000,ignore,100,ignore,1.54
+61,Grating stage,motor,ref,4220000,3999000,3780000,ignore,ignore,1.54
+62,KNFs,motor,ref,4220000,3999000,3780000,ignore,ignore,1.54
+63,TBA,ignore,ignore,ignore,ignore,ignore,ignore,ignore,1.54
+64,Imaging beam path mirror left,motor,ref,0,4800,ignore,100,ignore,0.98
+65,Imaging beam path mirror right,motor,ref,0,4800,ignore,100,ignore,0.98
+66,Imaging filter angle,motor,ref,3951700,3999000,ignore,1000,-1000,0.98
+67,Imaging filter wheel,filter wheel,ref,0,23000,ignore,ignore,ignore,0.98
+68,Marklight (test tool),ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+69,Mark Edgerton Multi LED,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+70,GP Futaba channel 1  (Path1 Mirror),futaba,no ref,6000,8000,ignore,ignore,ignore,1.06
+71,GP Futaba channel 2  (Path2 Mirror),futaba,no ref,6000,8000,ignore,ignore,ignore,1.06
+72,GP Futaba channel 3  (Path3 Mirror),futaba,no ref,6000,8000,ignore,ignore,ignore,1.06
+73,GP Futaba channel 4  (Path4 Mirror),futaba,no ref,6000,8000,ignore,ignore,ignore,1.06
+74,GP Futaba channel 5  (Path4 Beam Block),futaba,no ref,6000,8000,ignore,ignore,ignore,1.06
+75,GP Futaba channel 6  (Second pin hole - Melbourne),futaba,no ref,6000,8000,ignore,ignore,ignore,1.06
+76,GP Futaba channel 7  (Second detector arm motor),futaba,no ref,6000,8000,ignore,ignore,ignore,1.06
+77,GP Futaba channel 8  (Deep UV motorised alignment mirror),futaba,no ref,6000,8000,ignore,ignore,ignore,1.06
+78,HID Interface,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+79,HID Interface (reserved),ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+80,HID Interface (reserved),ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+81,HID Interface (reserved),ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+82,Lens focus (pre slit lens),motor,ref,16000,16000,50000,500,ignore,1.54
+83,Lens focus (post slit lens),motor,ref,8000,16000,50000,500,ignore,1.54
+84,Lens focus (CCD lens),motor,ref,8000,16000,50000,500,ignore,1.54
+85,Line focus (replaces address 11),motor,ref,0,400,200,ignore,ignore,1.54
+86,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+87,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+88,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+89,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+90,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+91,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+92,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+93,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+94,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+95,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+96,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+97,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+98,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+99,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+100,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+101,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+102,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+103,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+104,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+105,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+106,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+107,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+108,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+109,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+110,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+111,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+112,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+113,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+114,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+115,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+116,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+117,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+118,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+119,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+120,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+121,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+122,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+123,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+124,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+125,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+126,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+127,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+128,HPNIR,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+129,RA100USB Neon cal lamp,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+130,RA100USB reserved,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+131,RA100USB reserved,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+132,RA100USB reserved,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+133,RA100USB reserved,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+134,RA100USB reserved,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+135,RA100USB reserved,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+136,VCFOP 1 2-position motorised mirror,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+137,VCFOP 1 lamp and peripherals,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+138,VCFOP 2 2-position motorised mirror,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+139,VCFOP 2 lamp and peripherals,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+140,VCFOP 3 2-position motorised mirror,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+141,VCFOP 3 lamp and peripherals,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+142,VCFOP 4 2-position motorised mirror,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+143,VCFOP 4 lamp and peripherals,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+144,External Trigger Box 1 trigger control,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+145,External Trigger Box 1 shutter control,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+146,Reserved for Specials,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+147,Reserved for Specials,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+148,Reserved for Specials,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+149,Reserved for Specials,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+150,Reserved for Specials,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+151,Reserved for Specials,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+152,Reserved for Specials,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+153,Reserved for Specials,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+154,Reserved for Specials,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+155,Reserved for Specials,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+156,Reserved for Specials,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+157,Reserved for Specials,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+158,Reserved for Specials,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+159,Reserved for Specials,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+160,Reserved for Specials,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+161,Reserved for Specials,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+162,Reserved for Specials,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+163,Reserved for Specials,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+164,Reserved for Specials,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+165,Reserved for Specials,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+166,Reserved for Specials,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+167,Reserved for Specials,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+168,Reserved for Specials,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+169,Reserved for Specials,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+170,USB-RS485 Adapter,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+171,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+172,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+173,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+174,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+175,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+176,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+177,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+178,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+179,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+180,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+181,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+182,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+183,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+184,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+185,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+186,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+187,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+188,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+189,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+190,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+191,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+192,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+193,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+194,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+195,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+196,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+197,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+198,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+199,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+200,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+201,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+202,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+203,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+204,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+205,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+206,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+207,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+208,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+209,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+210,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+211,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+212,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+213,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+214,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+215,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+216,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+217,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+218,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+219,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+220,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+221,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+222,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+223,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+224,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+225,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+226,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+227,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+228,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+229,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+230,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+231,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+232,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+233,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+234,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+235,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+236,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+237,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+238,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+239,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+240,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+241,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+242,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+243,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+244,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+245,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+246,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+247,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+248,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+249,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+250,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+251,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+252,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+253,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+254,,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0
+255,200DR (Sandwich scope) Neon,ignore,ignore,ignore,ignore,ignore,ignore,ignore,0

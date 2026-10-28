@@ -1,0 +1,38 @@
+name: Build Windows portable app
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - '**/*.md'
+  pull_request:
+    paths-ignore:
+      - '**/*.md'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install dependencies
+        run: npm install
+      - name: Type check
+        run: npm run typecheck
+      - name: Build portable executable
+        run: npm run package
+      - name: Upload portable executable
+        uses: actions/upload-artifact@v4
+        with:
+          name: UsbR485Tool-win-x64
+          path: |
+            dist/electron/UsbR485Tool-x64-portable.exe
+            Addresses.csv
+            operator.csv
+          if-no-files-found: error

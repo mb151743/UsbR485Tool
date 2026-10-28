@@ -1,0 +1,29 @@
+* { box-sizing: border-box; }
+:root { font-family: "Segoe UI", system-ui, sans-serif; color: #1d1c1a; background: #f5f3ef; }
+body { margin: 0; min-width: 860px; min-height: 620px; background: #f5f3ef; }
+.header { height: 76px; display: flex; align-items: center; justify-content: space-between; padding: 0 28px; color: white; background: linear-gradient(105deg, #6f25a6 0%, #f04e78 52%, #f38a1c 100%); }
+.header h1 { margin: 0; font-size: 19px; line-height: 22px; }
+.header p { margin: 3px 0 0; color: #fdeceb; font-size: 11px; }
+.header-mark { width: 48px; height: 48px; border-radius: 50%; background: rgb(255 255 255 / 14%); }
+main { height: calc(100vh - 76px); padding: 20px; }
+.card { height: 100%; padding: 18px; border: 1px solid #e9e4de; border-radius: 18px; background: white; box-shadow: 0 2px 12px rgb(50 35 20 / 3%); }
+.card-heading { display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+.card-heading h2 { margin: 0; font-size: 26px; line-height: 31px; }
+#status { min-height: 18px; margin-top: 5px; color: #73706b; font-size: 14px; }
+#status.error { color: #b42318; }
+.actions { display: flex; flex: none; gap: 10px; }
+.button { height: 44px; min-width: 150px; padding: 0 22px; border-radius: 22px; font: 600 14px inherit; cursor: pointer; transition: background 120ms, transform 120ms; }
+.button:active { transform: translateY(1px); }
+.button.secondary { color: #d45417; border: 1px solid #f1c8b1; background: #fffbf7; }
+.button.secondary:hover { background: #fff3e5; }
+.button.primary { color: white; border: 1px solid #f36c21; background: #f36c21; }
+.button.primary:hover { background: #e85b16; }
+.divider { height: 1px; margin: 18px 0 12px; background: #eeeae5; }
+#file-title { margin: 0 0 10px 2px; color: #4a4742; font-size: 15px; }
+.table-shell { height: calc(100% - 137px); overflow: auto; border: 1px solid #e7e2dc; border-radius: 12px; background: #fafaf9; }
+table { width: 100%; border-spacing: 0; font-size: 13px; }
+th, td { padding: 10px 12px; border-bottom: 1px solid #eeeae5; text-align: left; white-space: nowrap; }
+th { position: sticky; top: 0; z-index: 1; border-right: 1px solid #e7e2dc; color: #4a4742; background: #f2eeea; font-weight: 600; }
+td { color: #37342f; }
+tbody tr:nth-child(even) td { background: #fff9f6; }
+td:last-child, th:last-child { border-right: 0; }

@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'">
+    <title>USB-RS485 Command Tool</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="header">
+      <div>
+        <h1>USB-RS485</h1>
+        <p>Machine command configuration</p>
+      </div>
+      <div class="header-mark" aria-hidden="true"></div>
+    </header>
+
+    <main>
+      <section class="card" aria-labelledby="page-title">
+        <div class="card-heading">
+          <div>
+            <h2 id="page-title">Configuration browser</h2>
+            <div id="status" role="status">Choose a CSV file to display</div>
+          </div>
+          <div class="actions">
+            <button class="button secondary" type="button" data-csv="Addresses.csv">Addresses.csv</button>
+            <button class="button primary" type="button" data-csv="operator.csv">operator.csv</button>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+        <h3 id="file-title">No file selected</h3>
+        <div class="table-shell">
+          <table id="csv-table" hidden>
+            <thead></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+    <script type="module" src="renderer.js"></script>
+  </body>
+</html>

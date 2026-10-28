@@ -1,0 +1,50 @@
+{
+  "name": "usb-r485-tool",
+  "version": "1.0.0",
+  "private": true,
+  "description": "USB-RS485 CSV configuration browser",
+  "main": "dist/main/main.js",
+  "scripts": {
+    "clean": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true})\"",
+    "build": "npm run clean && tsc -p tsconfig.main.json && tsc -p tsconfig.preload.json && tsc -p tsconfig.renderer.json && node scripts/copy-static.js",
+    "start": "npm run build && electron .",
+    "typecheck": "tsc -p tsconfig.main.json --noEmit && tsc -p tsconfig.preload.json --noEmit && tsc -p tsconfig.renderer.json --noEmit",
+    "package": "npm run build && electron-builder --win portable --x64"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.30",
+    "electron": "^37.2.6",
+    "electron-builder": "^26.0.12",
+    "typescript": "^5.8.3"
+  },
+  "build": {
+    "appId": "com.usb-r485-tool.app",
+    "productName": "UsbR485Tool",
+    "directories": {
+      "output": "dist/electron"
+    },
+    "files": [
+      "dist/main/**/*",
+      "dist/preload/**/*",
+      "dist/renderer/**/*",
+      "package.json"
+    ],
+    "extraFiles": [
+      "Addresses.csv",
+      "operator.csv"
+    ],
+    "asar": true,
+    "win": {
+      "target": [
+        {
+          "target": "portable",
+          "arch": ["x64"]
+        }
+      ],
+      "artifactName": "UsbR485Tool-${arch}-portable.exe"
+    },
+    "portable": {
+      "artifactName": "UsbR485Tool-${arch}-portable.exe"
+    }
+  }
+}
