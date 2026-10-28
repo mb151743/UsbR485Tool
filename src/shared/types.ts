@@ -12,6 +12,10 @@ export interface CsvResult {
   error?: string;
 }
 
+export type CsvSaveResult = { ok: true } | { ok: false; error: string };
+
 export interface UsbR485Api {
   loadCsv: (kind: CsvKind) => Promise<CsvResult>;
+  saveCsv: (document: CsvDocument) => Promise<CsvSaveResult>;
+  logStartupStage: (stage: string) => void;
 }

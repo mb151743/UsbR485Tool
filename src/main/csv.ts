@@ -1,4 +1,4 @@
-import { readFile } from 'node:fs/promises';
+import { readFile, writeFile } from 'node:fs/promises';
 import type { CsvKind, CsvDocument } from '../shared/types.js';
 
 export function parseCsv(source: string): string[][] {
@@ -64,4 +64,18 @@ export async function readCsv(path: string, kind: CsvKind): Promise<CsvDocument>
   }
 
   return { kind, headers, rows };
+}
+
+function encodeCsvRow(row: string[]): string {
+  return row.map((value) => {
+    if (!/[",\r\n]/.test(value)) return value;
+    return `"${value.replaceAll('"', '""')}"`;
+  }).join(',');
+}
+
+export async function writeCsv(path: string, document: CsvDocument): Promise<void> {
+  const rows = document.kind === 'Addresses.csv'
+    ? [document.headers, ...document.rows]
+    : document.rows.map(([operator, employeeId]) => [`${operator} ${employeeId}`.trim()]);
+  await writeFile(path, rows.map(encodeCsvRow).join('\r\n') + '\r\n', 'utf8');
 }

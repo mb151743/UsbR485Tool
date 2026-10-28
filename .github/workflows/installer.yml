@@ -1,0 +1,36 @@
+name: Build Windows installer
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Type check
+        run: npm run typecheck
+      - name: Build Windows installer
+        run: npm run package:installer
+      - name: Stage distributable files
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force distribution | Out-Null
+          Copy-Item dist/electron/UsbR485Tool-x64-Setup.exe distribution/
+          Copy-Item Addresses.csv, operator.csv distribution/
+          Compress-Archive -Path distribution/* -DestinationPath dist/electron/UsbR485Tool-win-x64-installer.zip
+      - name: Upload Windows installer package
+        uses: actions/upload-artifact@v4
+        with:
+          name: UsbR485Tool-win-x64-installer
+          path: dist/electron/UsbR485Tool-win-x64-installer.zip
+          if-no-files-found: error

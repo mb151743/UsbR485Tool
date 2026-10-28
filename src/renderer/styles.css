@@ -4,7 +4,7 @@ body { margin: 0; min-width: 860px; min-height: 620px; background: #f5f3ef; }
 .header { height: 76px; display: flex; align-items: center; justify-content: space-between; padding: 0 28px; color: white; background: linear-gradient(105deg, #6f25a6 0%, #f04e78 52%, #f38a1c 100%); }
 .header h1 { margin: 0; font-size: 19px; line-height: 22px; }
 .header p { margin: 3px 0 0; color: #fdeceb; font-size: 11px; }
-.header-mark { width: 48px; height: 48px; border-radius: 50%; background: rgb(255 255 255 / 14%); }
+.header-logo { height: 46px; width: auto; max-width: 310px; object-fit: contain; mix-blend-mode: multiply; }
 main { height: calc(100vh - 76px); padding: 20px; }
 .card { height: 100%; padding: 18px; border: 1px solid #e9e4de; border-radius: 18px; background: white; box-shadow: 0 2px 12px rgb(50 35 20 / 3%); }
 .card-heading { display: flex; align-items: center; justify-content: space-between; gap: 24px; }
@@ -27,3 +27,7 @@ th { position: sticky; top: 0; z-index: 1; border-right: 1px solid #e7e2dc; colo
 td { color: #37342f; }
 tbody tr:nth-child(even) td { background: #fff9f6; }
 td:last-child, th:last-child { border-right: 0; }
+table input { min-width: 130px; width: 100%; padding: 6px 8px; border: 1px solid transparent; border-radius: 6px; background: transparent; font: inherit; color: inherit; }
+table input:focus { outline: 2px solid #f38a1c; border-color: white; background: white; }
+.button.save { color: #1d1c1a; border: 1px solid #dfc26d; background: #f6cf67; }
+.button.save:hover { background: #efbe45; }
