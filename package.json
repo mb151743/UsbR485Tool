@@ -10,8 +10,8 @@
     "start": "npm run build && electron .",
     "typecheck": "tsc -p tsconfig.main.json --noEmit && tsc -p tsconfig.preload.json --noEmit && tsc -p tsconfig.renderer.json --noEmit",
     "package": "npm run package:portable",
-    "package:portable": "npm run build && electron-builder --win portable --x64",
-    "package:installer": "npm run build && electron-builder --win nsis --x64"
+    "package:portable": "npm run build && electron-builder --win portable --x64 --publish never",
+    "package:installer": "npm run build && electron-builder --win nsis --x64 --publish never"
   },
   "devDependencies": {
     "@types/node": "^22.15.30",
