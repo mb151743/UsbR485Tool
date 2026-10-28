@@ -29,7 +29,7 @@ jobs:
         run: |
           New-Item -ItemType Directory -Force distribution | Out-Null
           Copy-Item dist/electron/UsbR485Tool-x64-portable.exe distribution/
-          Copy-Item Addresses.csv, operator.csv distribution/
+          Copy-Item Addresses.csv, operator.csv, config.json distribution/
       - name: Upload portable package
         uses: actions/upload-artifact@v4
         with:

@@ -31,3 +31,13 @@ table input { min-width: 130px; width: 100%; padding: 6px 8px; border: 1px solid
 table input:focus { outline: 2px solid #f38a1c; border-color: white; background: white; }
 .button.save { color: #1d1c1a; border: 1px solid #dfc26d; background: #f6cf67; }
 .button.save:hover { background: #efbe45; }
+.button.scan { color: white; border: 1px solid #6f25a6; background: #6f25a6; }
+.button.scan:hover { background: #5b1d8a; }
+.button:disabled { cursor: wait; opacity: 0.65; }
+#scan-results { margin-top: 18px; }
+#scan-results h3 { margin: 0 0 5px 2px; color: #4a4742; font-size: 15px; }
+#scan-status { min-height: 18px; margin: 0 0 8px; color: #73706b; font-size: 13px; }
+#scan-status.error { color: #b42318; }
+.scan-table-shell { max-height: 260px; overflow: auto; border: 1px solid #e7e2dc; border-radius: 12px; }
+.scan-match td { background: #f0f8f2; }
+.scan-mismatch td { background: #fff3f1; }

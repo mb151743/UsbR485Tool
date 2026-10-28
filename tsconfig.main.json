@@ -12,5 +12,11 @@
     "rootDir": "src",
     "outDir": "dist"
   },
-  "include": ["src/main/**/*.ts", "src/shared/**/*.ts"]
+  "include": [
+    "src/main/**/*.ts",
+    "src/shared/**/*.ts",
+    "src/hardware/**/*.ts",
+    "src/tests/**/*.ts",
+    "src/types/**/*.ts"
+  ]
 }

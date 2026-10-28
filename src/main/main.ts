@@ -1,8 +1,11 @@
 import { app, BrowserWindow, ipcMain, Menu } from 'electron';
 import { existsSync } from 'node:fs';
-import { appendFile, mkdir, stat, writeFile } from 'node:fs/promises';
+import { appendFile, mkdir, readFile, stat, writeFile } from 'node:fs/promises';
 import path from 'node:path';
-import type { CsvDocument, CsvKind, CsvResult, CsvSaveResult } from '../shared/types.js';
+import type { AppConfig, SimulatedDevice } from '../types/addresses.js';
+import { SimTransport } from '../hardware/simTransport.js';
+import type { CsvDocument, CsvKind, CsvResult, CsvSaveResult, ScanResponse } from '../shared/types.js';
+import { scanAddresses } from '../tests/scanner.js';
 import { readCsv, writeCsv } from './csv.js';
 
 const processStartedAt = process.hrtime.bigint();
@@ -65,6 +68,77 @@ function externalCsvDirectory(): string {
     return process.env.PORTABLE_EXECUTABLE_DIR ?? path.dirname(process.execPath);
   }
   return app.getAppPath();
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+function isIntegerInRange(value: unknown, min: number, max: number): value is number {
+  return typeof value === 'number' && Number.isInteger(value) && value >= min && value <= max;
+}
+
+async function loadAppConfig(): Promise<AppConfig> {
+  const configPath = path.join(externalCsvDirectory(), 'config.json');
+  const content = await readFile(configPath, 'utf8');
+  const parsed: unknown = JSON.parse(content);
+  if (!isRecord(parsed)) throw new Error('config.json must contain a JSON object.');
+  if (parsed.transport !== 'simulation' && parsed.transport !== 'ftdi') {
+    throw new Error('config.json transport must be "simulation" or "ftdi".');
+  }
+  if (!isRecord(parsed.addressRange)) {
+    throw new Error('config.json must define an addressRange object.');
+  }
+  const { start, end } = parsed.addressRange;
+  if (!isIntegerInRange(start, 0, 255) || !isIntegerInRange(end, 0, 255) || start > end) {
+    throw new Error('config.json addressRange must be an ascending range from 0 to 255.');
+  }
+  if (!isRecord(parsed.simulation) || !Array.isArray(parsed.simulation.devices)) {
+    throw new Error('config.json simulation.devices must be an array.');
+  }
+
+  const devices: SimulatedDevice[] = parsed.simulation.devices.map((value, index) => {
+    if (
+      !isRecord(value) ||
+      !isIntegerInRange(value.address, 0, 255) ||
+      !isIntegerInRange(value.firmwareMajor, 0, 255) ||
+      !isIntegerInRange(value.firmwareMinor, 0, 99)
+    ) {
+      throw new Error(`config.json simulation.devices[${index}] has invalid address or firmware values.`);
+    }
+    return {
+      address: value.address,
+      firmwareMajor: value.firmwareMajor,
+      firmwareMinor: value.firmwareMinor
+    };
+  });
+
+  return {
+    transport: parsed.transport,
+    addressRange: { start, end },
+    simulation: { devices }
+  };
+}
+
+async function runAddressScan(): Promise<ScanResponse> {
+  try {
+    const config = await loadAppConfig();
+    if (config.transport === 'ftdi') {
+      throw new Error(
+        'FTDI mode is selected, but no D2XX device adapter is installed. ' +
+        'Connect a D2xxDevice adapter to FtdiTransport in the main process.'
+      );
+    }
+    const transport = new SimTransport(config.simulation.devices);
+    const results = await scanAddresses(
+      transport,
+      path.join(externalCsvDirectory(), 'Addresses.csv'),
+      config.addressRange
+    );
+    return { ok: true, results };
+  } catch (error) {
+    return { ok: false, error: error instanceof Error ? error.message : String(error) };
+  }
 }
 
 async function loadCsv(kind: CsvKind): Promise<CsvResult> {
@@ -134,6 +208,7 @@ async function saveCsv(document: CsvDocument): Promise<CsvSaveResult> {
 Menu.setApplicationMenu(null);
 ipcMain.handle('csv:load', (_event, kind: CsvKind) => loadCsv(kind));
 ipcMain.handle('csv:save', (_event, document: CsvDocument) => saveCsv(document));
+ipcMain.handle('hardware:scan', () => runAddressScan());
 ipcMain.on('startup:log', (_event, stage: unknown) => {
   if (typeof stage === 'string' && /^[a-z0-9:._-]{1,80}$/i.test(stage)) {
     logStartupStage(stage);

@@ -1,0 +1,31 @@
+{
+  "transport": "simulation",
+  "addressRange": {
+    "start": 0,
+    "end": 86
+  },
+  "simulation": {
+    "devices": [
+      {
+        "address": 2,
+        "firmwareMajor": 1,
+        "firmwareMinor": 14
+      },
+      {
+        "address": 3,
+        "firmwareMajor": 1,
+        "firmwareMinor": 14
+      },
+      {
+        "address": 6,
+        "firmwareMajor": 5,
+        "firmwareMinor": 1
+      },
+      {
+        "address": 7,
+        "firmwareMajor": 5,
+        "firmwareMinor": 1
+      }
+    ]
+  }
+}

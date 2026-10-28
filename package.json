@@ -27,13 +27,17 @@
     },
     "files": [
       "dist/main/**/*",
+      "dist/hardware/**/*",
+      "dist/tests/**/*",
+      "dist/types/**/*",
       "dist/preload/**/*",
       "dist/renderer/**/*",
       "package.json"
     ],
     "extraFiles": [
       "Addresses.csv",
-      "operator.csv"
+      "operator.csv",
+      "config.json"
     ],
     "asar": true,
     "win": {

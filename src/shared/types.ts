@@ -1,3 +1,5 @@
+import type { ScanResult } from '../types/addresses.js';
+
 export type CsvKind = 'Addresses.csv' | 'operator.csv';
 
 export interface CsvDocument {
@@ -13,9 +15,13 @@ export interface CsvResult {
 }
 
 export type CsvSaveResult = { ok: true } | { ok: false; error: string };
+export type ScanResponse =
+  | { ok: true; results: ScanResult[] }
+  | { ok: false; error: string };
 
 export interface UsbR485Api {
   loadCsv: (kind: CsvKind) => Promise<CsvResult>;
   saveCsv: (document: CsvDocument) => Promise<CsvSaveResult>;
+  scanAddresses: () => Promise<ScanResponse>;
   logStartupStage: (stage: string) => void;
 }

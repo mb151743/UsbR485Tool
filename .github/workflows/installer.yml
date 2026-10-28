@@ -26,7 +26,7 @@ jobs:
         run: |
           New-Item -ItemType Directory -Force distribution | Out-Null
           Copy-Item dist/electron/UsbR485Tool-x64-Setup.exe distribution/
-          Copy-Item Addresses.csv, operator.csv distribution/
+          Copy-Item Addresses.csv, operator.csv, config.json distribution/
       - name: Upload Windows installer package
         uses: actions/upload-artifact@v4
         with:
