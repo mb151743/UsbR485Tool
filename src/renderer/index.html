@@ -11,7 +11,7 @@
     <header class="header">
       <div>
         <h1>USB-RS485</h1>
-        <p>Machine command configuration</p>
+        <p>Hardware scan and system setup</p>
       </div>
       <img class="header-logo" src="assets/renishaw-logo.png" alt="Renishaw" />
     </header>
@@ -20,11 +20,10 @@
       <section class="card" aria-labelledby="page-title">
         <div class="card-heading">
           <div>
-            <h2 id="page-title">Configuration browser</h2>
-            <div id="status" role="status">Choose a CSV file to display</div>
+            <h2 id="page-title">inVia Pre-System Test</h2>
+            <div id="status" role="status">Enter the serial number and operator to scan hardware.</div>
           </div>
           <div class="actions">
-            <button class="button scan" id="scan-hardware" type="button">Scan addresses</button>
             <button class="button secondary" type="button" data-csv="Addresses.csv">Addresses.csv</button>
             <button class="button primary" type="button" data-csv="operator.csv">operator.csv</button>
             <button class="button save" id="save-csv" type="button" hidden>Save changes</button>
@@ -32,6 +31,33 @@
         </div>
 
         <div class="divider"></div>
+        <section class="scan-setup" aria-label="Test setup">
+          <label for="serial-number">Serial number</label>
+          <input id="serial-number" name="serialNumber" type="text" maxlength="6" placeholder="6 characters" autocomplete="off">
+          <label for="operator-select">Operator</label>
+          <select id="operator-select" name="operator" disabled>
+            <option value="">Loading operators…</option>
+          </select>
+          <button class="button scan" id="scan-hardware" type="button" disabled>Scan hardware</button>
+        </section>
+        <div id="setup-status" role="status" aria-live="polite"></div>
+        <section id="scan-results" hidden aria-labelledby="scan-title">
+          <h3 id="scan-title">Detected hardware</h3>
+          <div id="scan-status" role="status" aria-live="polite"></div>
+          <div class="scan-table-shell">
+            <table id="scan-table">
+              <thead>
+                <tr>
+                  <th>Address</th>
+                  <th>Description</th>
+                  <th>Firmware</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </section>
         <h3 id="file-title">No file selected</h3>
         <div class="table-shell">
           <table id="csv-table" hidden>
@@ -39,25 +65,6 @@
             <tbody></tbody>
           </table>
         </div>
-        <section id="scan-results" hidden aria-labelledby="scan-title">
-          <h3 id="scan-title">Address scan</h3>
-          <div id="scan-status" role="status"></div>
-          <div class="scan-table-shell">
-            <table id="scan-table">
-              <thead>
-                <tr>
-                  <th>Address</th>
-                  <th>Description</th>
-                  <th>Expected firmware</th>
-                  <th>Actual firmware</th>
-                  <th>Connected</th>
-                  <th>Firmware match</th>
-                </tr>
-              </thead>
-              <tbody></tbody>
-            </table>
-          </div>
-        </section>
       </section>
     </main>
     <script type="module" src="renderer.js"></script>

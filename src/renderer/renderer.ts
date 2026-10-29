@@ -14,57 +14,146 @@ const table = document.querySelector<HTMLTableElement>('#csv-table');
 const tbody = document.querySelector<HTMLTableSectionElement>('tbody');
 const saveButton = document.querySelector<HTMLButtonElement>('#save-csv');
 const scanButton = document.querySelector<HTMLButtonElement>('#scan-hardware');
+const serialInput = document.querySelector<HTMLInputElement>('#serial-number');
+const operatorSelect = document.querySelector<HTMLSelectElement>('#operator-select');
+const setupStatus = document.querySelector<HTMLDivElement>('#setup-status');
 const scanResults = document.querySelector<HTMLElement>('#scan-results');
 const scanStatus = document.querySelector<HTMLDivElement>('#scan-status');
 const scanTableBody = document.querySelector<HTMLTableSectionElement>('#scan-table tbody');
 let currentDocument: CsvDocument | undefined;
+let scanSetupLoaded = false;
+let scanInProgress = false;
+let operatorSaveInProgress = false;
+let operatorSaveSequence = 0;
 
 if (!status || !fileTitle || !table || !tbody || !saveButton || !scanButton ||
-  !scanResults || !scanStatus || !scanTableBody) {
+  !serialInput || !operatorSelect || !setupStatus || !scanResults || !scanStatus || !scanTableBody) {
   throw new Error('The application UI did not initialize.');
 }
 
+function updateScanButton(): void {
+  scanButton!.disabled = !scanSetupLoaded || scanInProgress || operatorSaveInProgress ||
+    serialInput!.value.length !== 6 || operatorSelect!.value.length === 0;
+}
+
 function renderScanResults(results: ScanResult[]): void {
-  scanTableBody!.replaceChildren(...results.map((result) => {
+  const foundDevices = results.filter((result) => result.connected);
+  scanTableBody!.replaceChildren(...foundDevices.map((result) => {
     const row = document.createElement('tr');
-    const values = [
+    for (const value of [
       String(result.address),
       result.description,
-      formatFirmware(result.expectedFirmware),
-      result.connected ? formatFirmware(result.actualFirmware) : '—',
-      result.connected ? 'Yes' : 'No',
-      result.connected ? (result.firmwareMatch ? 'Yes' : 'No') : '—'
-    ];
-    for (const value of values) {
+      formatFirmware(result.actualFirmware)
+    ]) {
       const cell = document.createElement('td');
       cell.textContent = value;
       row.append(cell);
     }
-    row.classList.toggle('scan-match', result.connected && result.firmwareMatch);
-    row.classList.toggle('scan-mismatch', result.connected && !result.firmwareMatch);
+
+    const statusCell = document.createElement('td');
+    if (result.firmwareMatch) {
+      statusCell.textContent = 'Firmware matches';
+      row.classList.add('scan-match');
+    } else {
+      const warning = document.createElement('span');
+      warning.className = 'warning-icon';
+      warning.textContent = '⚠';
+      warning.setAttribute('role', 'img');
+      warning.setAttribute(
+        'aria-label',
+        `Firmware mismatch: expected ${formatFirmware(result.expectedFirmware)}`
+      );
+      statusCell.append(warning, document.createTextNode(
+        ` Firmware mismatch (expected ${formatFirmware(result.expectedFirmware)})`
+      ));
+      row.classList.add('scan-mismatch');
+    }
+    row.append(statusCell);
     return row;
   }));
+
+  scanStatus!.textContent = foundDevices.length === 0
+    ? 'No hardware found.'
+    : `${foundDevices.length} device${foundDevices.length === 1 ? '' : 's'} found.`;
+}
+
+async function loadScanSetup(): Promise<void> {
+  setupStatus!.textContent = 'Loading operators…';
+  setupStatus!.classList.remove('error');
+  try {
+    const response = await window.UsbR485.loadScanSetup();
+    if (!response.ok) throw new Error(response.error);
+
+    const options = [new Option('Select an operator', '')];
+    for (const operator of response.operators) {
+      options.push(new Option(operator, operator));
+    }
+    operatorSelect!.replaceChildren(...options);
+    operatorSelect!.disabled = response.operators.length === 0;
+    if (response.lastOperator) operatorSelect!.value = response.lastOperator;
+    scanSetupLoaded = true;
+    setupStatus!.textContent = response.operators.length === 0
+      ? 'operator.csv contains no operators.'
+      : '';
+  } catch (error) {
+    scanSetupLoaded = false;
+    operatorSelect!.replaceChildren(new Option('Operators unavailable', ''));
+    operatorSelect!.disabled = true;
+    setupStatus!.textContent = error instanceof Error ? error.message : String(error);
+    setupStatus!.classList.add('error');
+  } finally {
+    updateScanButton();
+  }
+}
+
+async function persistSelectedOperator(): Promise<void> {
+  const selectedOperator = operatorSelect!.value;
+  const sequence = ++operatorSaveSequence;
+  operatorSaveInProgress = true;
+  operatorSelect!.disabled = true;
+  setupStatus!.classList.remove('error');
+  setupStatus!.textContent = '';
+  updateScanButton();
+
+  try {
+    const result = await window.UsbR485.saveLastOperator(selectedOperator);
+    if (sequence !== operatorSaveSequence) return;
+    if (!result.ok) throw new Error(result.error);
+  } catch (error) {
+    if (sequence !== operatorSaveSequence) return;
+    setupStatus!.textContent = error instanceof Error ? error.message : String(error);
+    setupStatus!.classList.add('error');
+  } finally {
+    if (sequence === operatorSaveSequence) {
+      operatorSaveInProgress = false;
+      operatorSelect!.disabled = !scanSetupLoaded || operatorSelect!.options.length <= 1;
+      updateScanButton();
+    }
+  }
 }
 
 async function scanHardware(): Promise<void> {
+  if (serialInput!.value.length !== 6 || !operatorSelect!.value) return;
+  scanInProgress = true;
+  updateScanButton();
   scanButton!.disabled = true;
   scanResults!.hidden = false;
   scanStatus!.classList.remove('error');
-  scanStatus!.textContent = 'Scanning configured address range…';
+  scanStatus!.textContent = 'Scanning hardware…';
   try {
-    const response = await window.UsbR485.scanAddresses();
+    const response = await window.UsbR485.scanAddresses(
+      serialInput!.value,
+      operatorSelect!.value
+    );
     if (!response.ok) throw new Error(response.error);
     renderScanResults(response.results);
-    const connected = response.results.filter((result) => result.connected).length;
-    const matches = response.results.filter((result) => result.firmwareMatch).length;
-    scanStatus!.textContent =
-      `${connected} connected; ${matches} firmware matches across ${response.results.length} addresses`;
   } catch (error) {
     scanTableBody!.replaceChildren();
     scanStatus!.textContent = error instanceof Error ? error.message : String(error);
     scanStatus!.classList.add('error');
   } finally {
-    scanButton!.disabled = false;
+    scanInProgress = false;
+    updateScanButton();
   }
 }
 
@@ -138,6 +227,8 @@ async function saveCsv(): Promise<void> {
 
 saveButton!.addEventListener('click', () => { void saveCsv(); });
 scanButton!.addEventListener('click', () => { void scanHardware(); });
+serialInput!.addEventListener('input', updateScanButton);
+operatorSelect!.addEventListener('change', () => { void persistSelectedOperator(); });
 
 document.querySelectorAll<HTMLButtonElement>('[data-csv]').forEach((button) => {
   button.addEventListener('click', () => {
@@ -147,3 +238,4 @@ document.querySelectorAll<HTMLButtonElement>('[data-csv]').forEach((button) => {
 });
 
 window.UsbR485.logStartupStage('renderer-initialized');
+void loadScanSetup();

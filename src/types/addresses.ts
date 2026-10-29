@@ -31,4 +31,5 @@ export interface AppConfig {
   simulation: {
     devices: SimulatedDevice[];
   };
+  lastOperator: string;
 }

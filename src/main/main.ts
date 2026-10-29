@@ -4,7 +4,14 @@ import { appendFile, mkdir, readFile, stat, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import type { AppConfig, SimulatedDevice } from '../types/addresses.js';
 import { SimTransport } from '../hardware/simTransport.js';
-import type { CsvDocument, CsvKind, CsvResult, CsvSaveResult, ScanResponse } from '../shared/types.js';
+import type {
+  CsvDocument,
+  CsvKind,
+  CsvResult,
+  CsvSaveResult,
+  ScanResponse,
+  ScanSetupResponse
+} from '../shared/types.js';
 import { scanAddresses } from '../tests/scanner.js';
 import { readCsv, writeCsv } from './csv.js';
 
@@ -93,6 +100,11 @@ async function loadAppConfig(): Promise<AppConfig> {
   if (!isIntegerInRange(start, 0, 255) || !isIntegerInRange(end, 0, 255) || start > end) {
     throw new Error('config.json addressRange must be an ascending range from 0 to 255.');
   }
+  const configuredLastOperator = parsed.lastOperator;
+  if (configuredLastOperator !== undefined && typeof configuredLastOperator !== 'string') {
+    throw new Error('config.json lastOperator must be a string.');
+  }
+  const lastOperator = configuredLastOperator ?? '';
   if (!isRecord(parsed.simulation) || !Array.isArray(parsed.simulation.devices)) {
     throw new Error('config.json simulation.devices must be an array.');
   }
@@ -116,13 +128,64 @@ async function loadAppConfig(): Promise<AppConfig> {
   return {
     transport: parsed.transport,
     addressRange: { start, end },
-    simulation: { devices }
+    simulation: { devices },
+    lastOperator
   };
 }
 
-async function runAddressScan(): Promise<ScanResponse> {
+async function loadOperators(): Promise<string[]> {
+  const operatorPath = path.join(externalCsvDirectory(), 'operator.csv');
+  if (!existsSync(operatorPath)) throw new Error('Could not find operator.csv beside the executable.');
+  const document = await readCsv(operatorPath, 'operator.csv');
+  return [...new Set(document.rows
+    .map((row) => row.map((field) => field.trim()).filter(Boolean).join(' '))
+    .filter((operator) => operator.length > 0))];
+}
+
+async function persistLastOperator(operator: string): Promise<void> {
+  const configPath = path.join(externalCsvDirectory(), 'config.json');
+  const content = await readFile(configPath, 'utf8');
+  const parsed: unknown = JSON.parse(content);
+  if (!isRecord(parsed)) throw new Error('config.json must contain a JSON object.');
+  await writeFile(configPath, `${JSON.stringify({ ...parsed, lastOperator: operator }, null, 2)}\n`, 'utf8');
+}
+
+async function loadScanSetup(): Promise<ScanSetupResponse> {
   try {
+    const [config, operators] = await Promise.all([loadAppConfig(), loadOperators()]);
+    return {
+      ok: true,
+      operators,
+      lastOperator: operators.includes(config.lastOperator) ? config.lastOperator : ''
+    };
+  } catch (error) {
+    return { ok: false, error: error instanceof Error ? error.message : String(error) };
+  }
+}
+
+async function saveLastOperator(operator: unknown): Promise<CsvSaveResult> {
+  try {
+    if (typeof operator !== 'string') throw new Error('Choose an operator from the list.');
+    const operators = await loadOperators();
+    if (!operators.includes(operator)) throw new Error('Choose an operator from the list.');
+    await persistLastOperator(operator);
+    return { ok: true };
+  } catch (error) {
+    return { ok: false, error: error instanceof Error ? error.message : String(error) };
+  }
+}
+
+async function runAddressScan(serialNumber: unknown, operator: unknown): Promise<ScanResponse> {
+  try {
+    if (typeof serialNumber !== 'string' || serialNumber.length !== 6) {
+      throw new Error('Serial number must be exactly 6 characters.');
+    }
+    if (typeof operator !== 'string') throw new Error('Choose an operator from the list.');
+    const operators = await loadOperators();
+    if (!operators.includes(operator)) throw new Error('Choose an operator from the list.');
+
     const config = await loadAppConfig();
+    await persistLastOperator(operator);
     if (config.transport === 'ftdi') {
       throw new Error(
         'FTDI mode is selected, but no D2XX device adapter is installed. ' +
@@ -208,7 +271,12 @@ async function saveCsv(document: CsvDocument): Promise<CsvSaveResult> {
 Menu.setApplicationMenu(null);
 ipcMain.handle('csv:load', (_event, kind: CsvKind) => loadCsv(kind));
 ipcMain.handle('csv:save', (_event, document: CsvDocument) => saveCsv(document));
-ipcMain.handle('hardware:scan', () => runAddressScan());
+ipcMain.handle('hardware:setup', () => loadScanSetup());
+ipcMain.handle('hardware:save-operator', (_event, operator: unknown) => saveLastOperator(operator));
+ipcMain.handle('hardware:scan', (_event, request: unknown) => {
+  if (!isRecord(request)) return runAddressScan(undefined, undefined);
+  return runAddressScan(request.serialNumber, request.operator);
+});
 ipcMain.on('startup:log', (_event, stage: unknown) => {
   if (typeof stage === 'string' && /^[a-z0-9:._-]{1,80}$/i.test(stage)) {
     logStartupStage(stage);

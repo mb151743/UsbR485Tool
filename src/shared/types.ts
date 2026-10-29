@@ -15,6 +15,9 @@ export interface CsvResult {
 }
 
 export type CsvSaveResult = { ok: true } | { ok: false; error: string };
+export type ScanSetupResponse =
+  | { ok: true; operators: string[]; lastOperator: string }
+  | { ok: false; error: string };
 export type ScanResponse =
   | { ok: true; results: ScanResult[] }
   | { ok: false; error: string };
@@ -22,6 +25,8 @@ export type ScanResponse =
 export interface UsbR485Api {
   loadCsv: (kind: CsvKind) => Promise<CsvResult>;
   saveCsv: (document: CsvDocument) => Promise<CsvSaveResult>;
-  scanAddresses: () => Promise<ScanResponse>;
+  loadScanSetup: () => Promise<ScanSetupResponse>;
+  saveLastOperator: (operator: string) => Promise<CsvSaveResult>;
+  scanAddresses: (serialNumber: string, operator: string) => Promise<ScanResponse>;
   logStartupStage: (stage: string) => void;
 }

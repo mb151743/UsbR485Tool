@@ -1,5 +1,6 @@
 {
   "transport": "simulation",
+  "lastOperator": "",
   "addressRange": {
     "start": 0,
     "end": 86
