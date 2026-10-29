@@ -11,7 +11,7 @@ declare global {
 const status = document.querySelector<HTMLDivElement>('#status');
 const fileTitle = document.querySelector<HTMLHeadingElement>('#file-title');
 const table = document.querySelector<HTMLTableElement>('#csv-table');
-const tbody = document.querySelector<HTMLTableSectionElement>('tbody');
+const tbody = document.querySelector<HTMLTableSectionElement>('#csv-table tbody');
 const saveButton = document.querySelector<HTMLButtonElement>('#save-csv');
 const scanButton = document.querySelector<HTMLButtonElement>('#scan-hardware');
 const serialInput = document.querySelector<HTMLInputElement>('#serial-number');
