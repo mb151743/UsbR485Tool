@@ -6,6 +6,7 @@ import {
   type Transport
 } from '../hardware/transport.js';
 import { parseFirmwareVersion } from './firmware.js';
+import { loadMotorTestPlans } from './motors.js';
 
 const FIRMWARE_COMMAND = 137;
 
@@ -79,7 +80,10 @@ export async function scanAddresses(
   range: AddressRange
 ): Promise<ScanResult[]> {
   validateRange(range);
-  const addressConfig = await loadAddressConfig(csvPath);
+  const [addressConfig, motorTestPlans] = await Promise.all([
+    loadAddressConfig(csvPath),
+    loadMotorTestPlans(csvPath)
+  ]);
   const results: ScanResult[] = [];
 
   for (let address = range.start; address <= range.end; address += 1) {
@@ -99,13 +103,15 @@ export async function scanAddresses(
       if (!(error instanceof DeviceTimeoutError)) throw error;
     }
 
+    const motorTest = motorTestPlans.get(address);
     results.push({
       address,
       description,
       expectedFirmware,
       actualFirmware,
       connected,
-      firmwareMatch: connected && actualFirmware === expectedFirmware
+      firmwareMatch: connected && actualFirmware === expectedFirmware,
+      ...(motorTest ? { motorTest } : {})
     });
   }
 

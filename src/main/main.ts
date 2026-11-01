@@ -3,16 +3,24 @@ import { existsSync } from 'node:fs';
 import { appendFile, mkdir, readFile, stat, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import type { AppConfig, SimulatedDevice } from '../types/addresses.js';
+import type { MotorAttemptResult, MotorTestRecord } from '../types/addresses.js';
 import { SimTransport } from '../hardware/simTransport.js';
+import type { Transport } from '../hardware/transport.js';
 import type {
+  AuditAction,
+  AuditActionDetails,
   CsvDocument,
   CsvKind,
   CsvResult,
   CsvSaveResult,
+  MotorTestResponse,
   ScanResponse,
-  ScanSetupResponse
+  ScanSetupResponse,
+  TestReportRequest,
+  TestReportResponse
 } from '../shared/types.js';
 import { scanAddresses } from '../tests/scanner.js';
+import { loadMotorTestPlans, runMotorTest } from '../tests/motors.js';
 import { readCsv, writeCsv } from './csv.js';
 
 const processStartedAt = process.hrtime.bigint();
@@ -20,6 +28,109 @@ const startupRunId = new Date().toISOString();
 const pendingStartupLog: string[] = [];
 let startupLogPath: string | undefined;
 let startupLogWriteQueue = Promise.resolve();
+let activeMotorTest: AbortController | undefined;
+let limitJoggingHeld = false;
+let activityLogPathPromise: Promise<string> | undefined;
+let activityLogWriteQueue = Promise.resolve();
+
+async function activityLogPath(): Promise<string> {
+  if (!activityLogPathPromise) {
+    activityLogPathPromise = (async () => {
+      const directory = path.join(externalCsvDirectory(), 'TestData');
+      await mkdir(directory, { recursive: true });
+      return path.join(directory, 'activity.log');
+    })();
+  }
+  return activityLogPathPromise;
+}
+
+async function writeActivityLog(
+  event: string,
+  details: Record<string, unknown> = {}
+): Promise<void> {
+  const line = `${JSON.stringify({
+    timestamp: new Date().toISOString(),
+    event,
+    ...details
+  })}\r\n`;
+  const operation = activityLogWriteQueue.then(async () => {
+    await appendFile(await activityLogPath(), line, 'utf8');
+  });
+  activityLogWriteQueue = operation.catch(() => undefined);
+  await operation;
+}
+
+function auditedTransport(transport: Transport): Transport {
+  return {
+    async sendCommand(address, command, data1, data2) {
+      await writeActivityLog('COMMAND_TX', { address, command, data1, data2 });
+      try {
+        const response = await transport.sendCommand(address, command, data1, data2);
+        await writeActivityLog('COMMAND_RX', {
+          address: response.address,
+          command: response.command,
+          data1: response.data1,
+          data2: response.data2
+        });
+        return response;
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        await writeActivityLog('COMMAND_ERROR', {
+          address,
+          command,
+          error: message
+        });
+        throw error;
+      }
+    }
+  };
+}
+
+const AUDIT_ACTIONS: readonly AuditAction[] = [
+  'scan',
+  'csv_open_addresses',
+  'csv_open_operators',
+  'csv_save',
+  'motor_run',
+  'motor_rerun',
+  'motor_ignore',
+  'motor_stop',
+  'report_save',
+  'auto_jog_changed',
+  'down_arrow_pressed',
+  'down_arrow_released',
+  'escape_pressed'
+];
+
+async function recordUserAction(request: unknown): Promise<void> {
+  if (!isRecord(request) || typeof request.action !== 'string' ||
+    !AUDIT_ACTIONS.includes(request.action as AuditAction)) {
+    throw new Error('Invalid activity log action.');
+  }
+  const details = request.details;
+  if (details !== undefined && !isRecord(details)) {
+    throw new Error('Invalid activity log details.');
+  }
+  const cleanDetails: AuditActionDetails = {};
+  if (details) {
+    if (details.address !== undefined) {
+      if (!isIntegerInRange(details.address, 0, 255)) {
+        throw new Error('Activity log address must be from 0 to 255.');
+      }
+      cleanDetails.address = details.address;
+    }
+    if (details.enabled !== undefined) {
+      if (typeof details.enabled !== 'boolean') {
+        throw new Error('Activity log enabled state must be true or false.');
+      }
+      cleanDetails.enabled = details.enabled;
+    }
+  }
+  await writeActivityLog('USER_ACTION', {
+    action: request.action,
+    ...cleanDetails
+  });
+}
 
 function logStartupStage(stage: string, details?: Record<string, unknown>): void {
   const entry = {
@@ -192,13 +303,200 @@ async function runAddressScan(serialNumber: unknown, operator: unknown): Promise
         'Connect a D2xxDevice adapter to FtdiTransport in the main process.'
       );
     }
-    const transport = new SimTransport(config.simulation.devices);
+    const transport = auditedTransport(new SimTransport(config.simulation.devices));
     const results = await scanAddresses(
       transport,
       path.join(externalCsvDirectory(), 'Addresses.csv'),
       config.addressRange
     );
     return { ok: true, results };
+  } catch (error) {
+    return { ok: false, error: error instanceof Error ? error.message : String(error) };
+  }
+}
+
+async function runConfiguredMotorTest(request: unknown): Promise<MotorTestResponse> {
+  let controller: AbortController | undefined;
+  try {
+    if (!isRecord(request) || typeof request.autoJog !== 'boolean') {
+      throw new Error('Motor test request must include an auto-jog setting.');
+    }
+    const addressValue = request.address;
+    if (!isIntegerInRange(addressValue, 0, 255)) {
+      throw new Error('Choose a valid motor address.');
+    }
+    const autoJog = request.autoJog;
+    if (activeMotorTest) throw new Error('A motor test is already running.');
+    controller = new AbortController();
+    activeMotorTest = controller;
+
+    const config = await loadAppConfig();
+    if (config.transport === 'ftdi') {
+      throw new Error(
+        'FTDI mode is selected, but no D2XX device adapter is installed. ' +
+        'No motor command was sent.'
+      );
+    }
+
+    const csvPath = path.join(externalCsvDirectory(), 'Addresses.csv');
+    const plans = await loadMotorTestPlans(csvPath);
+    const plan = plans.get(addressValue);
+    if (!plan) throw new Error(`Address ${addressValue} is not configured for a motor test.`);
+
+    const transport = auditedTransport(new SimTransport(config.simulation.devices));
+    const firmwareResponse = await transport.sendCommand(addressValue, 137, 0, 0);
+    if (firmwareResponse.address !== addressValue || firmwareResponse.command !== 137) {
+      throw new Error(`Address ${addressValue} did not return a valid firmware response.`);
+    }
+
+    const addressCsv = await readCsv(csvPath, 'Addresses.csv');
+    const headers = addressCsv.headers.map((header) =>
+      header.toLowerCase().replace(/[^a-z0-9]/g, '')
+    );
+    const addressColumn = headers.indexOf('address');
+    const descriptionColumn = headers.indexOf('description');
+    const row = addressCsv.rows.find((candidate) =>
+      Number(candidate[addressColumn]) === addressValue
+    );
+    const description = row?.[descriptionColumn]?.trim() || `Address ${addressValue}`;
+
+    if (config.transport === 'simulation' && plan.switchChecks.length > 0) {
+      return {
+        ok: true,
+        result: {
+          passed: false,
+          error: `${description}: limit-switch checks cannot be verified in simulation.`
+        }
+      };
+    }
+    if (controller.signal.aborted) {
+      throw new Error('Motor test was stopped before it could start.');
+    }
+    limitJoggingHeld = false;
+    const result = await runMotorTest(
+      transport,
+      addressValue,
+      description,
+      plan,
+      controller.signal,
+      () => limitJoggingHeld,
+      autoJog
+    );
+    return { ok: true, result };
+  } catch (error) {
+    return { ok: false, error: error instanceof Error ? error.message : String(error) };
+  } finally {
+    if (activeMotorTest === controller) {
+      activeMotorTest = undefined;
+      limitJoggingHeld = false;
+    }
+  }
+}
+
+function cancelConfiguredMotorTest(): void {
+  limitJoggingHeld = false;
+  activeMotorTest?.abort();
+}
+
+function setConfiguredLimitJogging(held: unknown): void {
+  if (typeof held !== 'boolean') throw new Error('Limit-jog input must be true or false.');
+  if (!activeMotorTest) return;
+  limitJoggingHeld = held;
+}
+
+function oneLine(value: string): string {
+  return value.replace(/[\r\n]+/g, ' ').trim();
+}
+
+function isMotorAttemptResult(value: unknown): value is MotorAttemptResult {
+  return isRecord(value) &&
+    typeof value.passed === 'boolean' &&
+    (value.passed || typeof value.error === 'string');
+}
+
+function isMotorTestRecord(value: unknown): value is MotorTestRecord {
+  if (!isRecord(value) ||
+    !isIntegerInRange(value.address, 0, 255) ||
+    typeof value.description !== 'string' ||
+    !['passed', 'failed', 'ignored', 'not-tested'].includes(String(value.status)) ||
+    !Array.isArray(value.attempts)) {
+    return false;
+  }
+  const attempts = value.attempts.filter(isMotorAttemptResult);
+  if (attempts.length !== value.attempts.length) return false;
+  if (value.status === 'passed') return attempts.some((attempt) => attempt.passed);
+  if (value.status === 'failed') return attempts.length > 0 && !attempts.at(-1)?.passed;
+  if (value.status === 'ignored') return attempts.length > 0 && !attempts.at(-1)?.passed;
+  return attempts.length === 0;
+}
+
+function isTestReportRequest(value: unknown): value is TestReportRequest {
+  if (!isRecord(value) ||
+    typeof value.serialNumber !== 'string' ||
+    value.serialNumber.length !== 6 ||
+    typeof value.operator !== 'string' ||
+    !Array.isArray(value.records)) {
+    return false;
+  }
+  const addresses = new Set<number>();
+  return value.records.every((record: unknown) => {
+    if (!isMotorTestRecord(record) || addresses.has(record.address)) return false;
+    addresses.add(record.address);
+    return true;
+  });
+}
+
+async function saveTestReport(requestValue: unknown): Promise<TestReportResponse> {
+  try {
+    if (!isTestReportRequest(requestValue)) {
+      throw new Error('The test report contains invalid or incomplete data.');
+    }
+    const { serialNumber, operator, records } = requestValue;
+    const operators = await loadOperators();
+    if (!operators.includes(operator)) throw new Error('Choose a valid operator before saving the report.');
+    if (records.length === 0) throw new Error('There are no motor results to report.');
+    if (records.some((record) =>
+      record.status === 'failed' || record.status === 'not-tested'
+    )) {
+      throw new Error('Rerun or ignore every failed motor test before saving the report.');
+    }
+
+    const overall: 'passed' | 'failed' = records.some((record) =>
+      record.status === 'passed'
+    ) && records.every((record) =>
+      record.status === 'passed' || record.status === 'ignored'
+    ) ? 'passed' : 'failed';
+    const lines = [
+      'inVia Pre-System Test',
+      'Transport mode: SIMULATION (does not verify physical motor movement)',
+      `System serial number: ${oneLine(serialNumber)}`,
+      `Operator: ${oneLine(operator)}`,
+      `Report generated: ${new Date().toISOString()}`,
+      '',
+      'Motor results:'
+    ];
+    for (const record of records) {
+      lines.push(
+        `${record.address} - ${oneLine(record.description)}: ${record.status.toUpperCase()}`
+      );
+      record.attempts.forEach((attempt, index) => {
+        lines.push(attempt.passed
+          ? `  Attempt ${index + 1}: PASS`
+          : `  Attempt ${index + 1}: FAIL - ${oneLine(attempt.error)}`);
+      });
+    }
+    lines.push('', `Overall result: ${overall.toUpperCase()}`);
+
+    const outputDirectory = path.join(externalCsvDirectory(), 'TestData');
+    await mkdir(outputDirectory, { recursive: true });
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    const safeSerial = serialNumber.replace(/[^A-Za-z0-9_-]/g, '_');
+    const reportPath = path.join(
+      outputDirectory,
+      `${safeSerial}-${timestamp}-test-report.txt`
+    );
+    await writeFile(reportPath, `${lines.join('\r\n')}\r\n`, 'utf8');
+    return { ok: true, path: reportPath, overall };
   } catch (error) {
     return { ok: false, error: error instanceof Error ? error.message : String(error) };
   }
@@ -277,6 +575,17 @@ ipcMain.handle('hardware:scan', (_event, request: unknown) => {
   if (!isRecord(request)) return runAddressScan(undefined, undefined);
   return runAddressScan(request.serialNumber, request.operator);
 });
+ipcMain.handle('hardware:run-motor-test', (_event, address: unknown) =>
+  runConfiguredMotorTest(address)
+);
+ipcMain.handle('hardware:cancel-motor-test', () => cancelConfiguredMotorTest());
+ipcMain.handle('hardware:set-limit-jogging', (_event, held: unknown) =>
+  setConfiguredLimitJogging(held)
+);
+ipcMain.handle('audit:activity', (_event, request: unknown) => recordUserAction(request));
+ipcMain.handle('report:save-test-report', (_event, request: unknown) =>
+  saveTestReport(request)
+);
 ipcMain.on('startup:log', (_event, stage: unknown) => {
   if (typeof stage === 'string' && /^[a-z0-9:._-]{1,80}$/i.test(stage)) {
     logStartupStage(stage);

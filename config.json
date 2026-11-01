@@ -26,6 +26,106 @@
         "address": 7,
         "firmwareMajor": 5,
         "firmwareMinor": 1
+      },
+      {
+        "address": 11,
+        "firmwareMajor": 0,
+        "firmwareMinor": 0
+      },
+      {
+        "address": 12,
+        "firmwareMajor": 0,
+        "firmwareMinor": 74
+      },
+      {
+        "address": 13,
+        "firmwareMajor": 0,
+        "firmwareMinor": 74
+      },
+      {
+        "address": 14,
+        "firmwareMajor": 0,
+        "firmwareMinor": 74
+      },
+      {
+        "address": 19,
+        "firmwareMajor": 2,
+        "firmwareMinor": 4
+      },
+      {
+        "address": 20,
+        "firmwareMajor": 2,
+        "firmwareMinor": 4
+      },
+      {
+        "address": 21,
+        "firmwareMajor": 2,
+        "firmwareMinor": 4
+      },
+      {
+        "address": 22,
+        "firmwareMajor": 2,
+        "firmwareMinor": 4
+      },
+      {
+        "address": 43,
+        "firmwareMajor": 2,
+        "firmwareMinor": 15
+      },
+      {
+        "address": 44,
+        "firmwareMajor": 2,
+        "firmwareMinor": 15
+      },
+      {
+        "address": 60,
+        "firmwareMajor": 1,
+        "firmwareMinor": 54
+      },
+      {
+        "address": 61,
+        "firmwareMajor": 1,
+        "firmwareMinor": 54
+      },
+      {
+        "address": 62,
+        "firmwareMajor": 1,
+        "firmwareMinor": 54
+      },
+      {
+        "address": 64,
+        "firmwareMajor": 0,
+        "firmwareMinor": 98
+      },
+      {
+        "address": 65,
+        "firmwareMajor": 0,
+        "firmwareMinor": 98
+      },
+      {
+        "address": 66,
+        "firmwareMajor": 0,
+        "firmwareMinor": 98
+      },
+      {
+        "address": 82,
+        "firmwareMajor": 1,
+        "firmwareMinor": 54
+      },
+      {
+        "address": 83,
+        "firmwareMajor": 1,
+        "firmwareMinor": 54
+      },
+      {
+        "address": 84,
+        "firmwareMajor": 1,
+        "firmwareMinor": 54
+      },
+      {
+        "address": 85,
+        "firmwareMajor": 1,
+        "firmwareMinor": 54
       }
     ]
   }

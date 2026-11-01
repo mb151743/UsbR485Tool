@@ -12,6 +12,31 @@ export interface ScanResult {
   actualFirmware: number;
   connected: boolean;
   firmwareMatch: boolean;
+  motorTest?: MotorTestPlan;
+}
+
+export interface MotorTestPlan {
+  reference: boolean;
+  targets: Array<{
+    label: string;
+    position: number;
+  }>;
+  switchChecks: Array<{
+    label: string;
+    move: number;
+    statusMask: number;
+  }>;
+}
+
+export type MotorAttemptResult =
+  | { passed: true }
+  | { passed: false; error: string };
+
+export interface MotorTestRecord {
+  address: number;
+  description: string;
+  status: 'passed' | 'failed' | 'ignored' | 'not-tested';
+  attempts: MotorAttemptResult[];
 }
 
 export interface AddressRange {

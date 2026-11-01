@@ -2,7 +2,7 @@
   "name": "usb-r485-tool",
   "version": "1.0.0",
   "private": true,
-  "description": "USB-RS485 CSV configuration browser",
+  "description": "USB-RS485 pre-system testing application",
   "main": "dist/main/main.js",
   "scripts": {
     "clean": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true})\"",

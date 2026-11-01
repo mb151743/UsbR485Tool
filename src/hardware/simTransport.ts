@@ -40,7 +40,7 @@ export class SimTransport implements Transport {
       address,
       command,
       data1: command === 137 ? device.firmwareMajor : 0,
-      data2: command === 137 ? device.firmwareMinor : 0
+      data2: command === 137 ? device.firmwareMinor : command === 128 ? 3 : 0
     };
   }
 }

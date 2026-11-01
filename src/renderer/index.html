@@ -11,7 +11,7 @@
     <header class="header">
       <div>
         <h1>USB-RS485</h1>
-        <p>Hardware scan and system setup</p>
+        <p>Hardware scan and motor test workflow</p>
       </div>
       <img class="header-logo" src="assets/renishaw-logo.png" alt="Renishaw" />
     </header>
@@ -52,6 +52,37 @@
                   <th>Description</th>
                   <th>Firmware</th>
                   <th>Status</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </section>
+        <section id="motor-workflow" hidden aria-labelledby="motor-title">
+          <div class="workflow-heading">
+            <div>
+              <h3 id="motor-title">Motor tests</h3>
+              <p>Simulation checks exercise the workflow only; they do not verify physical movement.</p>
+              <label class="auto-jog-option" for="auto-jog">
+                <input id="auto-jog" type="checkbox">
+                Auto-jog limit switches without holding Down Arrow
+              </label>
+            </div>
+            <div class="workflow-actions">
+              <button class="button danger" id="cancel-motor-test" type="button" hidden>Stop motor test</button>
+              <button class="button primary" id="save-test-report" type="button" disabled>Save text report</button>
+            </div>
+          </div>
+          <div id="motor-status" role="status" aria-live="polite"></div>
+          <div class="scan-table-shell">
+            <table id="motor-table">
+              <thead>
+                <tr>
+                  <th>Address</th>
+                  <th>Motor</th>
+                  <th>Configured steps</th>
+                  <th>Result</th>
+                  <th>Action</th>
                 </tr>
               </thead>
               <tbody></tbody>

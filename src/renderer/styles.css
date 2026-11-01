@@ -50,3 +50,19 @@ table input:focus { outline: 2px solid #f38a1c; border-color: white; background:
 .scan-match td { background: #f0f8f2; }
 .scan-mismatch td { background: #fff3f1; }
 .warning-icon { color: #b54708; font-size: 17px; font-weight: 700; }
+#motor-workflow { flex: none; margin-top: 12px; }
+.workflow-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.workflow-heading h3 { margin: 0 0 3px 2px; color: #4a4742; font-size: 15px; }
+.workflow-heading p { margin: 0 0 8px 2px; color: #73706b; font-size: 12px; }
+.auto-jog-option { display: flex; align-items: center; gap: 7px; margin: 6px 0 8px 2px; color: #4a4742; font-size: 13px; font-weight: 600; }
+.auto-jog-option input { width: 16px; height: 16px; margin: 0; accent-color: #6f25a6; }
+.workflow-actions { display: flex; gap: 8px; }
+.button.danger { color: white; border: 1px solid #b42318; background: #b42318; }
+.button.danger:hover { background: #912018; }
+.button.small { height: 32px; min-width: 0; margin-right: 6px; padding: 0 12px; border-radius: 16px; font-size: 12px; }
+#motor-status { min-height: 18px; margin: 0 2px 6px; color: #73706b; font-size: 13px; overflow-wrap: anywhere; }
+#motor-status.error { color: #b42318; }
+#motor-table td { white-space: normal; }
+.motor-passed { color: #1b7a3a; font-weight: 700; }
+.motor-failed { color: #b42318; font-weight: 700; }
+.motor-ignored, .motor-not-tested { color: #73706b; }
