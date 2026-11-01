@@ -4,8 +4,11 @@ import { appendFile, mkdir, readFile, stat, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import type { AppConfig, SimulatedDevice } from '../types/addresses.js';
 import type { MotorAttemptResult, MotorTestRecord } from '../types/addresses.js';
+import { detectD2xxDevices, openD2xxDevice } from '../hardware/d2xxDevice.js';
+import { FtdiTransport } from '../hardware/ftdiTransport.js';
 import { SimTransport } from '../hardware/simTransport.js';
 import type { Transport } from '../hardware/transport.js';
+import { detectSupportedUsbDevices } from '../hardware/usbDetection.js';
 import type {
   AuditAction,
   AuditActionDetails,
@@ -244,6 +247,22 @@ async function loadAppConfig(): Promise<AppConfig> {
   };
 }
 
+async function withConfiguredTransport<T>(
+  config: AppConfig,
+  operation: (transport: Transport) => Promise<T>
+): Promise<T> {
+  if (config.transport === 'simulation') {
+    return operation(auditedTransport(new SimTransport(config.simulation.devices)));
+  }
+
+  const device = await openD2xxDevice(externalCsvDirectory());
+  try {
+    return await operation(auditedTransport(new FtdiTransport(device)));
+  } finally {
+    await device.close();
+  }
+}
+
 async function loadOperators(): Promise<string[]> {
   const operatorPath = path.join(externalCsvDirectory(), 'operator.csv');
   if (!existsSync(operatorPath)) throw new Error('Could not find operator.csv beside the executable.');
@@ -297,17 +316,13 @@ async function runAddressScan(serialNumber: unknown, operator: unknown): Promise
 
     const config = await loadAppConfig();
     await persistLastOperator(operator);
-    if (config.transport === 'ftdi') {
-      throw new Error(
-        'FTDI mode is selected, but no D2XX device adapter is installed. ' +
-        'Connect a D2xxDevice adapter to FtdiTransport in the main process.'
-      );
-    }
-    const transport = auditedTransport(new SimTransport(config.simulation.devices));
-    const results = await scanAddresses(
-      transport,
-      path.join(externalCsvDirectory(), 'Addresses.csv'),
-      config.addressRange
+    const results = await withConfiguredTransport(
+      config,
+      (transport) => scanAddresses(
+        transport,
+        path.join(externalCsvDirectory(), 'Addresses.csv'),
+        config.addressRange
+      )
     );
     return { ok: true, results };
   } catch (error) {
@@ -327,27 +342,15 @@ async function runConfiguredMotorTest(request: unknown): Promise<MotorTestRespon
     }
     const autoJog = request.autoJog;
     if (activeMotorTest) throw new Error('A motor test is already running.');
-    controller = new AbortController();
-    activeMotorTest = controller;
+    const runController = new AbortController();
+    controller = runController;
+    activeMotorTest = runController;
 
     const config = await loadAppConfig();
-    if (config.transport === 'ftdi') {
-      throw new Error(
-        'FTDI mode is selected, but no D2XX device adapter is installed. ' +
-        'No motor command was sent.'
-      );
-    }
-
     const csvPath = path.join(externalCsvDirectory(), 'Addresses.csv');
     const plans = await loadMotorTestPlans(csvPath);
     const plan = plans.get(addressValue);
     if (!plan) throw new Error(`Address ${addressValue} is not configured for a motor test.`);
-
-    const transport = auditedTransport(new SimTransport(config.simulation.devices));
-    const firmwareResponse = await transport.sendCommand(addressValue, 137, 0, 0);
-    if (firmwareResponse.address !== addressValue || firmwareResponse.command !== 137) {
-      throw new Error(`Address ${addressValue} did not return a valid firmware response.`);
-    }
 
     const addressCsv = await readCsv(csvPath, 'Addresses.csv');
     const headers = addressCsv.headers.map((header) =>
@@ -369,18 +372,30 @@ async function runConfiguredMotorTest(request: unknown): Promise<MotorTestRespon
         }
       };
     }
-    if (controller.signal.aborted) {
+    if (runController.signal.aborted) {
       throw new Error('Motor test was stopped before it could start.');
     }
     limitJoggingHeld = false;
-    const result = await runMotorTest(
-      transport,
-      addressValue,
-      description,
-      plan,
-      controller.signal,
-      () => limitJoggingHeld,
-      autoJog
+    const result = await withConfiguredTransport(
+      config,
+      async (transport) => {
+        if (runController.signal.aborted) {
+          throw new Error('Motor test was stopped before it could start.');
+        }
+        const firmwareResponse = await transport.sendCommand(addressValue, 137, 0, 0);
+        if (firmwareResponse.address !== addressValue || firmwareResponse.command !== 137) {
+          throw new Error(`Address ${addressValue} did not return a valid firmware response.`);
+        }
+        return runMotorTest(
+          transport,
+          addressValue,
+          description,
+          plan,
+          runController.signal,
+          () => limitJoggingHeld,
+          autoJog
+        );
+      }
     );
     return { ok: true, result };
   } catch (error) {
@@ -452,6 +467,7 @@ async function saveTestReport(requestValue: unknown): Promise<TestReportResponse
       throw new Error('The test report contains invalid or incomplete data.');
     }
     const { serialNumber, operator, records } = requestValue;
+    const config = await loadAppConfig();
     const operators = await loadOperators();
     if (!operators.includes(operator)) throw new Error('Choose a valid operator before saving the report.');
     if (records.length === 0) throw new Error('There are no motor results to report.');
@@ -468,7 +484,9 @@ async function saveTestReport(requestValue: unknown): Promise<TestReportResponse
     ) ? 'passed' : 'failed';
     const lines = [
       'inVia Pre-System Test',
-      'Transport mode: SIMULATION (does not verify physical motor movement)',
+      config.transport === 'simulation'
+        ? 'Transport mode: SIMULATION (does not verify physical motor movement)'
+        : 'Transport mode: FTDI D2XX hardware',
       `System serial number: ${oneLine(serialNumber)}`,
       `Operator: ${oneLine(operator)}`,
       `Report generated: ${new Date().toISOString()}`,
@@ -570,6 +588,14 @@ Menu.setApplicationMenu(null);
 ipcMain.handle('csv:load', (_event, kind: CsvKind) => loadCsv(kind));
 ipcMain.handle('csv:save', (_event, document: CsvDocument) => saveCsv(document));
 ipcMain.handle('hardware:setup', () => loadScanSetup());
+ipcMain.handle('hardware:detect-usb-devices', () => detectSupportedUsbDevices());
+ipcMain.handle('hardware:detect-d2xx-devices', () => {
+  try {
+    return { ok: true, ...detectD2xxDevices(externalCsvDirectory()) };
+  } catch (error) {
+    return { ok: false, error: error instanceof Error ? error.message : String(error) };
+  }
+});
 ipcMain.handle('hardware:save-operator', (_event, operator: unknown) => saveLastOperator(operator));
 ipcMain.handle('hardware:scan', (_event, request: unknown) => {
   if (!isRecord(request)) return runAddressScan(undefined, undefined);

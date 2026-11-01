@@ -57,5 +57,8 @@
     "portable": {
       "artifactName": "UsbR485Tool-${arch}-portable.exe"
     }
+  },
+  "dependencies": {
+    "koffi": "^3.3.6"
   }
 }

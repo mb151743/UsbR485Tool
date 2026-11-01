@@ -27,6 +27,8 @@ const motorStatus = document.querySelector<HTMLDivElement>('#motor-status');
 const cancelMotorButton = document.querySelector<HTMLButtonElement>('#cancel-motor-test');
 const reportButton = document.querySelector<HTMLButtonElement>('#save-test-report');
 const autoJogCheckbox = document.querySelector<HTMLInputElement>('#auto-jog');
+const usbDeviceStatus = document.querySelector<HTMLSpanElement>('#usb-device-status');
+const d2xxDeviceStatus = document.querySelector<HTMLSpanElement>('#d2xx-device-status');
 let currentDocument: CsvDocument | undefined;
 let scanSetupLoaded = false;
 let scanInProgress = false;
@@ -40,12 +42,51 @@ let scanIdentity: { serialNumber: string; operator: string } | undefined;
 let activeMotorSupportsJogging = false;
 let limitJoggingHeld = false;
 let downArrowPressed = false;
+let usbDetectionInProgress = false;
 
 if (!status || !fileTitle || !table || !tbody || !saveButton || !scanButton ||
   !serialInput || !operatorSelect || !setupStatus || !scanResults || !scanStatus || !scanTableBody ||
   !motorWorkflow || !motorTableBody || !motorStatus || !cancelMotorButton || !reportButton ||
-  !autoJogCheckbox) {
+  !autoJogCheckbox || !usbDeviceStatus || !d2xxDeviceStatus) {
   throw new Error('The application UI did not initialize.');
+}
+
+async function refreshUsbDeviceStatus(): Promise<void> {
+  if (usbDetectionInProgress) return;
+  usbDetectionInProgress = true;
+  usbDeviceStatus!.classList.remove('error');
+  d2xxDeviceStatus!.classList.remove('error');
+  try {
+    const [pnpResult, d2xxResult] = await Promise.all([
+      window.UsbR485.detectUsbDevices(),
+      window.UsbR485.detectD2xxDevices()
+    ]);
+    if (!pnpResult.ok) {
+      usbDeviceStatus!.textContent = `PnP detection unavailable: ${pnpResult.error}`;
+      usbDeviceStatus!.classList.add('error');
+    } else {
+      const knownDevices = ['RA802', 'SEMSCA', 'MSC20'] as const;
+      const detected = new Set(pnpResult.devices);
+      usbDeviceStatus!.textContent = knownDevices
+        .map((device) => `${device}: ${detected.has(device) ? 'Detected' : 'Not detected'}`)
+        .join(' · ');
+    }
+    if (!d2xxResult.ok) {
+      d2xxDeviceStatus!.textContent = `D2XX unavailable: ${d2xxResult.error}`;
+      d2xxDeviceStatus!.classList.add('error');
+    } else {
+      const devices = d2xxResult.devices.length > 0
+        ? d2xxResult.devices.join(', ')
+        : 'No FTDI devices enumerated';
+      d2xxDeviceStatus!.textContent = `D2XX ready (${d2xxResult.libraryPath}): ${devices}`;
+    }
+  } catch (error) {
+    usbDeviceStatus!.textContent =
+      `Detection unavailable: ${error instanceof Error ? error.message : String(error)}`;
+    usbDeviceStatus!.classList.add('error');
+  } finally {
+    usbDetectionInProgress = false;
+  }
 }
 
 async function logUserAction(
@@ -514,6 +555,9 @@ document.querySelectorAll<HTMLButtonElement>('[data-csv]').forEach((button) => {
 
 window.UsbR485.logStartupStage('renderer-initialized');
 void loadScanSetup();
+void refreshUsbDeviceStatus();
+window.setInterval(() => { void refreshUsbDeviceStatus(); }, 5000);
+window.addEventListener('focus', () => { void refreshUsbDeviceStatus(); });
 
 window.addEventListener('keydown', (event) => {
   if (event.key === 'ArrowDown' && activeMotorSupportsJogging && !event.repeat && !downArrowPressed) {

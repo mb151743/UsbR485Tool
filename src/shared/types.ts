@@ -1,6 +1,13 @@
 import type { MotorAttemptResult, MotorTestRecord, ScanResult } from '../types/addresses.js';
 
 export type CsvKind = 'Addresses.csv' | 'operator.csv';
+export type SupportedUsbDevice = 'RA802' | 'SEMSCA' | 'MSC20';
+export type UsbDetectionResult =
+  | { ok: true; devices: SupportedUsbDevice[]; source: 'windows-pnp' }
+  | { ok: false; devices: []; error: string };
+export type D2xxDetectionResult =
+  | { ok: true; libraryPath: string; devices: string[] }
+  | { ok: false; error: string };
 
 export interface CsvDocument {
   kind: CsvKind;
@@ -62,6 +69,8 @@ export interface UsbR485Api {
   runMotorTest: (address: number, autoJog: boolean) => Promise<MotorTestResponse>;
   cancelMotorTest: () => Promise<void>;
   setLimitJogging: (held: boolean) => Promise<void>;
+  detectUsbDevices: () => Promise<UsbDetectionResult>;
+  detectD2xxDevices: () => Promise<D2xxDetectionResult>;
   logActivity: (action: AuditAction, details?: AuditActionDetails) => Promise<void>;
   saveTestReport: (
     request: TestReportRequest

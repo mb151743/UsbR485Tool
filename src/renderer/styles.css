@@ -5,7 +5,7 @@ body { margin: 0; min-width: 860px; min-height: 620px; background: #f5f3ef; }
 .header h1 { margin: 0; font-size: 19px; line-height: 22px; }
 .header p { margin: 3px 0 0; color: #fdeceb; font-size: 11px; }
 .header-logo { height: 46px; width: auto; max-width: 310px; object-fit: contain; mix-blend-mode: multiply; }
-main { height: calc(100vh - 76px); padding: 20px; }
+main { height: calc(100vh - 126px); padding: 20px; }
 .card { display: flex; height: 100%; flex-direction: column; overflow: hidden; padding: 18px; border: 1px solid #e9e4de; border-radius: 18px; background: white; box-shadow: 0 2px 12px rgb(50 35 20 / 3%); }
 .card-heading { display: flex; align-items: center; justify-content: space-between; gap: 24px; }
 .card-heading h2 { margin: 0; font-size: 26px; line-height: 31px; }
@@ -33,7 +33,7 @@ table input:focus { outline: 2px solid #f38a1c; border-color: white; background:
 .button.save:hover { background: #efbe45; }
 .button.scan { color: white; border: 1px solid #6f25a6; background: #6f25a6; }
 .button.scan:hover { background: #5b1d8a; }
-.button:disabled { cursor: wait; opacity: 0.65; }
+.button:disabled { cursor: not-allowed; opacity: 0.65; }
 #file-title { flex: none; }
 .scan-setup { display: grid; flex: none; grid-template-columns: auto minmax(100px, 1fr) auto minmax(150px, 1fr) auto; align-items: center; gap: 10px 12px; }
 .scan-setup label { color: #4a4742; font-size: 13px; font-weight: 600; }
@@ -66,3 +66,9 @@ table input:focus { outline: 2px solid #f38a1c; border-color: white; background:
 .motor-passed { color: #1b7a3a; font-weight: 700; }
 .motor-failed { color: #b42318; font-weight: 700; }
 .motor-ignored, .motor-not-tested { color: #73706b; }
+#usb-device-bar { min-height: 50px; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; padding: 8px 28px; border-top: 1px solid #e4ded7; color: #37342f; background: #f2eeea; font-size: 13px; }
+#usb-device-bar strong { flex: none; }
+#usb-device-status { font-weight: 600; }
+#usb-device-status.error, #d2xx-device-status.error { color: #b42318; }
+#d2xx-device-status { overflow-wrap: anywhere; }
+.usb-device-note { margin-left: auto; color: #73706b; font-size: 11px; }
