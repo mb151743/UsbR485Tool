@@ -50,7 +50,10 @@ export class FtdiTransport implements Transport {
 
     const response = await this.readFrame();
     if (response[0] !== 0 || response[1] !== 0 || response[7] !== 0) {
-      throw new Error('D2XX returned an invalid response frame.');
+      const receivedBytes = [...response]
+        .map((value) => value.toString(16).padStart(2, '0').toUpperCase())
+        .join(' ');
+      throw new Error(`D2XX returned an invalid response frame: ${receivedBytes}.`);
     }
     const responseChecksum = (
       (response[2] ?? 0) + (response[3] ?? 0) + (response[4] ?? 0) + (response[5] ?? 0)
