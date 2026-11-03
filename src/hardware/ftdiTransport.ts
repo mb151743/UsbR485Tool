@@ -49,7 +49,11 @@ export class FtdiTransport implements Transport {
     }
 
     const response = await this.readFrame();
-    if (response[0] !== 0 || response[1] !== 0 || response[7] !== 0) {
+    if (
+      response[0] !== 0 ||
+      (response[1] !== 0 && response[1] !== 1) ||
+      response[7] !== 0
+    ) {
       const receivedBytes = [...response]
         .map((value) => value.toString(16).padStart(2, '0').toUpperCase())
         .join(' ');
