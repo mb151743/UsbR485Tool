@@ -162,9 +162,10 @@ async function runOperation(
 ): Promise<void> {
   if (signal.aborted) throw new Error('Motor test was stopped by the operator.');
   const commandResponse = await transport.sendCommand(address, command, data1, data2);
-  if (commandResponse.address !== address || commandResponse.command !== command) {
+  if (commandResponse.address !== address) {
     throw new Error(`Address ${address} returned an invalid response to command ${command}.`);
   }
+  // The legacy motor routine does not require the controller to echo move/reference commands.
   await pollForStatus(transport, address, statusMask, signal);
 }
 
@@ -188,11 +189,13 @@ async function runLimitSwitchCheck(
 
     const downHeld = autoJog || isDownHeld();
     if (downHeld) {
-      const response = await transport.sendCommand(address, 130, data1, data2);
-      if (response.address !== address || response.command !== 130) {
-        throw new Error(`Address ${address} returned an invalid relative-move response.`);
+      if (autoJog || !wasJogging) {
+        const response = await transport.sendCommand(address, 130, data1, data2);
+        if (response.address !== address) {
+          throw new Error(`Address ${address} returned an invalid relative-move response.`);
+        }
+        wasJogging = true;
       }
-      wasJogging = true;
     } else if (wasJogging) {
       await abortMove(transport, address);
       wasJogging = false;
@@ -203,7 +206,7 @@ async function runLimitSwitchCheck(
       throw new Error(`Address ${address} returned an invalid status response.`);
     }
     if ((response.data2 & statusMask) !== 0) {
-      await abortMove(transport, address);
+      if (wasJogging) await abortMove(transport, address);
       return;
     }
     await delay(POLL_INTERVAL_MS, signal);
